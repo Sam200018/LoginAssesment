@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injector/injector.dart';
 import 'package:login_test/domain/blocs/auth/auth_bloc.dart';
-import 'package:login_test/ui/pages/login/login_page.dart';
+import 'package:login_test/domain/blocs/email/email_bloc.dart';
+import 'package:login_test/ui/pages/login/email_page.dart';
 import 'package:login_test/ui/pages/new_account/new_account_page.dart';
 import 'package:login_test/ui/themes/theme.dart';
 
@@ -32,11 +33,19 @@ class AppView extends StatelessWidget {
         "/": (context) {
           return BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
-              return const EmailPage();
+              return BlocProvider.value(
+                value: Injector.appInstance.get<EmailBloc>(),
+                child: const EmailPage(),
+              );
             },
           );
         },
-        "/new_account": (context) => const NewAccountPage()
+        "/new_account": (context) {
+          return BlocProvider.value(
+            value: Injector.appInstance.get<EmailBloc>(),
+            child: const NewAccountPage(),
+          );
+        }
       },
     );
   }
