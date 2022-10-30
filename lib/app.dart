@@ -7,6 +7,7 @@ import 'package:login_test/ui/pages/login/email_page.dart';
 import 'package:login_test/ui/pages/new_account/new_account_page.dart';
 import 'package:login_test/ui/themes/theme.dart';
 
+import 'ui/pages/home/home_page.dart';
 import 'ui/pages/password/password_page.dart';
 
 class MyApp extends StatelessWidget {
@@ -35,7 +36,11 @@ class AppView extends StatelessWidget {
         "/": (context) {
           return BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
-              return const EmailPage();
+              if (state is AuthAuthenticated) {
+                return const HomePage();
+              } else {
+                return const EmailPage();
+              }
             },
           );
         },

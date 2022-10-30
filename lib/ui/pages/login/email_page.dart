@@ -46,7 +46,8 @@ class EmailPage extends StatelessWidget {
             ..showSnackBar(
               const SnackBar(
                 backgroundColor: Colors.red,
-                content: CustomText(textC: "Fallo en la conexion", size: 15.0),
+                content: CustomText(
+                    textC: "Se termino el tiempo de espera", size: 15.0),
               ),
             );
         }

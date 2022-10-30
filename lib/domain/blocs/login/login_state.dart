@@ -131,11 +131,11 @@ class LoginState extends Equatable {
         isEmailValid: true,
         isEmailFailure: false,
         isEmailSubmiting: false,
-        isEmailSuccess: true,
+        isEmailSuccess: false,
         isPasswordValid: true,
         isEnablePassword: false,
         isPasswordSubmiting: false,
-        isSuccess: false,
+        isSuccess: true,
         isFailureConnection: false,
         isFailure: false);
   }

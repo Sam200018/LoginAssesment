@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:login_test/data/repositories/login/exceptions.dart';
 import 'package:login_test/data/repositories/login/login_repository.dart';
 import 'package:login_test/domain/blocs/auth/auth_bloc.dart';
 import 'package:login_test/domain/validators.dart';
@@ -55,7 +56,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) {
     emit(state.update(
-        isPasswordValid: Validators.isValidPassword(passwordController.text)));
+        isPasswordValid:
+            Validators.isValidAmount(passwordController.text.length)));
   }
 
   void _onPasswordActivatedToState(
@@ -74,11 +76,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       final user = await _authRepository.login(
           emailController.text, passwordController.text);
-      // TODO: Aqui agregar el evento de logged in
-      // _authBloc.add();
+      log(user.toString());
+      _authBloc.add(LoggedIn(user: user));
       emit(LoginState.passwordSucces());
-    } catch (e) {
+      emailController.clear();
+      passwordController.clear();
+    } on AuthException catch (e) {
       emit(LoginState.passwordFailure());
+    } catch (e) {
+      emit(LoginState.failureConecction());
     }
   }
 }

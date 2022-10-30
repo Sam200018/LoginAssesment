@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_test/domain/blocs/login/login_bloc.dart';
+import 'package:login_test/ui/widgets/custom_text_widget.dart';
 import 'package:login_test/ui/widgets/principal_image_widget.dart';
 import 'package:login_test/ui/widgets/spacer_widget.dart';
 
@@ -11,16 +10,34 @@ class PasswordPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: const [
-              PrincipalImage(),
-              SpacerWidget(space: 16),
-              PasswordForm(),
-            ],
+    return BlocListener<LoginBloc, LoginState>(
+      listener: (context, state) {
+        if (state.isFailure) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.red,
+                content: CustomText(
+                    textC: "Las credenciales son incorrectas", size: 15.0),
+              ),
+            );
+        }
+        if (state.isSuccess) {
+          Navigator.pushReplacementNamed(context, "/");
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: const [
+                PrincipalImage(),
+                SpacerWidget(space: 16),
+                PasswordForm(),
+              ],
+            ),
           ),
         ),
       ),
@@ -36,6 +53,7 @@ class PasswordForm extends StatelessWidget {
     return Column(
       children: const [
         PasswordInput(),
+        SpacerWidget(space: 16),
         LoginButton(),
       ],
     );
@@ -44,7 +62,7 @@ class PasswordForm extends StatelessWidget {
 
 class PasswordInput extends StatelessWidget {
   const PasswordInput({super.key});
-
+  bool isEnablePassword(LoginState state) => state.isEnablePassword;
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
@@ -52,7 +70,7 @@ class PasswordInput extends StatelessWidget {
         return TextFormField(
           controller: context.read<LoginBloc>().passwordController,
           autocorrect: false,
-          obscureText: state.isEnablePassword,
+          obscureText: !isEnablePassword(state),
           decoration: InputDecoration(
             suffixIcon: IconButton(
               icon: const SuffixIconWidget(),
@@ -80,9 +98,9 @@ class SuffixIconWidget extends StatelessWidget {
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
         if (state.isEnablePassword) {
-          return const Icon(Icons.remove_red_eye_outlined);
+          return const Icon(Icons.visibility_off_outlined);
         } else {
-          return const Icon(Icons.visibility_off);
+          return const Icon(Icons.remove_red_eye_outlined);
         }
       },
     );
@@ -92,7 +110,7 @@ class SuffixIconWidget extends StatelessWidget {
 class LoginButton extends StatelessWidget {
   const LoginButton({super.key});
 
-  bool isPasswordInputValid(LoginState state) => state.isEnablePassword;
+  bool isPasswordInputValid(LoginState state) => state.isPasswordValid;
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +126,7 @@ class LoginButton extends StatelessWidget {
               onPressed: isPasswordInputValid(state)
                   ? () => context.read<LoginBloc>().add(PasswordSubmitted())
                   : null,
-              child: const Text("Iniciar sesion"),
+              child: const CustomText(textC: "Iniciar sesion", size: 20.0),
             ),
           );
         }
