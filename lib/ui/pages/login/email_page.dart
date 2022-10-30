@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injector/injector.dart';
-import 'package:login_test/domain/blocs/email/email_bloc.dart';
+import 'package:login_test/domain/blocs/login/login_bloc.dart';
 import 'package:login_test/ui/widgets/custom_text_widget.dart';
+import 'package:login_test/ui/widgets/principal_image_widget.dart';
 import 'package:login_test/ui/widgets/spacer_widget.dart';
 
 class EmailPage extends StatelessWidget {
@@ -10,13 +11,13 @@ class EmailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<EmailBloc, EmailState>(
+    return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
-        if (state.isFailure) {
+        if (state.isEmailFailure) {
           showDialog(
             context: context,
             builder: (_) => BlocProvider.value(
-              value: Injector.appInstance.get<EmailBloc>(),
+              value: Injector.appInstance.get<LoginBloc>(),
               child: AlertDialog(
                 title:
                     const CustomText(textC: "El email no existe", size: 15.0),
@@ -49,6 +50,9 @@ class EmailPage extends StatelessWidget {
               ),
             );
         }
+        if (state.isEmailSuccess) {
+          Navigator.pushReplacementNamed(context, "/password");
+        }
       },
       child: Scaffold(
         body: SafeArea(
@@ -70,50 +74,30 @@ class EmailPage extends StatelessWidget {
   }
 }
 
-class PrincipalImage extends StatelessWidget {
-  const PrincipalImage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Image(image: AssetImage("images/accountImage.png"));
-  }
-}
-
-class EmailForm extends StatefulWidget {
+class EmailForm extends StatelessWidget {
   const EmailForm({Key? key}) : super(key: key);
 
   @override
-  State<EmailForm> createState() => _EmailFormState();
-}
-
-class _EmailFormState extends State<EmailForm> {
-  final TextEditingController _emailController = TextEditingController();
-  @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
-        EmailInput(
-          emailController: _emailController,
-        ),
-        const SpacerWidget(space: 16),
-        EmailCheckButton(
-          emailInput: _emailController,
-        ),
+      children: const [
+        EmailInput(),
+        SpacerWidget(space: 16),
+        EmailCheckButton(),
       ],
     );
   }
 }
 
 class EmailInput extends StatelessWidget {
-  final TextEditingController emailController;
-  const EmailInput({required this.emailController, super.key});
+  const EmailInput({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EmailBloc, EmailState>(
+    return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
         return TextFormField(
-          controller: emailController,
+          controller: context.read<LoginBloc>().emailController,
           autocorrect: false,
           decoration: InputDecoration(
             labelText: "email",
@@ -122,7 +106,7 @@ class EmailInput extends StatelessWidget {
           ),
           keyboardType: TextInputType.emailAddress,
           onChanged: (email) {
-            context.read<EmailBloc>().add(EmailChanged(email: email));
+            context.read<LoginBloc>().add(EmailChanged(email: email));
           },
         );
       },
@@ -131,16 +115,14 @@ class EmailInput extends StatelessWidget {
 }
 
 class EmailCheckButton extends StatelessWidget {
-  final TextEditingController emailInput;
+  const EmailCheckButton({super.key});
 
-  const EmailCheckButton({required this.emailInput, super.key});
-
-  bool isEmailInputValid(EmailState state) => state.emailInputValid;
+  bool isEmailInputValid(LoginState state) => state.emailInputValid;
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EmailBloc, EmailState>(
+    return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
-        if (state.isSubmiting) {
+        if (state.isEmailSubmiting) {
           return const CircularProgressIndicator();
         } else {
           return SizedBox(
@@ -148,9 +130,7 @@ class EmailCheckButton extends StatelessWidget {
             height: 50.0,
             child: ElevatedButton(
               onPressed: isEmailInputValid(state)
-                  ? () => context
-                      .read<EmailBloc>()
-                      .add(EmailSubmitted(email: emailInput.text))
+                  ? () => context.read<LoginBloc>().add(EmailSubmitted())
                   : null,
               child: const CustomText(textC: "Siguiente", size: 20.0),
             ),

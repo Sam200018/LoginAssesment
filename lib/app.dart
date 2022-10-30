@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injector/injector.dart';
 import 'package:login_test/domain/blocs/auth/auth_bloc.dart';
-import 'package:login_test/domain/blocs/email/email_bloc.dart';
+import 'package:login_test/domain/blocs/login/login_bloc.dart';
 import 'package:login_test/ui/pages/login/email_page.dart';
 import 'package:login_test/ui/pages/new_account/new_account_page.dart';
 import 'package:login_test/ui/themes/theme.dart';
+
+import 'ui/pages/password/password_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: Injector.appInstance.get<AuthBloc>(),
-      child: const AppView(),
-    );
+    return MultiBlocProvider(providers: [
+      BlocProvider.value(value: Injector.appInstance.get<AuthBloc>()),
+      BlocProvider.value(value: Injector.appInstance.get<LoginBloc>()),
+    ], child: const AppView());
   }
 }
 
@@ -33,19 +35,17 @@ class AppView extends StatelessWidget {
         "/": (context) {
           return BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
-              return BlocProvider.value(
-                value: Injector.appInstance.get<EmailBloc>(),
-                child: const EmailPage(),
-              );
+              return const EmailPage();
             },
           );
         },
         "/new_account": (context) {
           return BlocProvider.value(
-            value: Injector.appInstance.get<EmailBloc>(),
+            value: Injector.appInstance.get<LoginBloc>(),
             child: const NewAccountPage(),
           );
-        }
+        },
+        "/password": (context) => const PasswordPage(),
       },
     );
   }
