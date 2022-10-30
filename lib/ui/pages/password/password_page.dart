@@ -23,6 +23,17 @@ class PasswordPage extends StatelessWidget {
               ),
             );
         }
+        if (state.isFailureConnection) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.red,
+                content: CustomText(
+                    textC: "Se termino el tiempo de espera", size: 15.0),
+              ),
+            );
+        }
         if (state.isSuccess) {
           Navigator.pushReplacementNamed(context, "/");
         }

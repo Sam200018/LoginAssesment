@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injector/injector.dart';
 import 'package:login_test/domain/blocs/auth/auth_bloc.dart';
 import 'package:login_test/domain/blocs/login/login_bloc.dart';
+import 'package:login_test/domain/blocs/new_account/new_account_bloc.dart';
 import 'package:login_test/ui/pages/login/email_page.dart';
 import 'package:login_test/ui/pages/new_account/new_account_page.dart';
 import 'package:login_test/ui/themes/theme.dart';
@@ -46,7 +47,7 @@ class AppView extends StatelessWidget {
         },
         "/new_account": (context) {
           return BlocProvider.value(
-            value: Injector.appInstance.get<LoginBloc>(),
+            value: Injector.appInstance.get<NewAccountBloc>(),
             child: const NewAccountPage(),
           );
         },

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_test/domain/blocs/auth/auth_bloc.dart';
@@ -44,7 +42,6 @@ class HomeMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO:cambiar el nombre por el user
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         final name = context.read<AuthBloc>().user.name;
