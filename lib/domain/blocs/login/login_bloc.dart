@@ -81,7 +81,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(LoginState.passwordSucces());
       emailController.clear();
       passwordController.clear();
-    } on AuthException catch (e) {
+    } on AuthException {
       emit(LoginState.passwordFailure());
     } catch (e) {
       emit(LoginState.failureConecction());

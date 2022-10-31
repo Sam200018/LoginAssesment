@@ -52,7 +52,7 @@ class EmailPage extends StatelessWidget {
             );
         }
         if (state.isEmailSuccess) {
-          Navigator.pushReplacementNamed(context, "/password");
+          Navigator.pushNamed(context, "/password");
         }
       },
       child: Scaffold(
@@ -107,7 +107,7 @@ class EmailInput extends StatelessWidget {
           ),
           keyboardType: TextInputType.emailAddress,
           onChanged: (email) {
-            context.read<LoginBloc>().add(EmailChanged(email: email));
+            context.read<LoginBloc>().add(EmailChanged());
           },
         );
       },

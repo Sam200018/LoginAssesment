@@ -6,3 +6,13 @@ abstract class NewAccountEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+class NameChanged extends NewAccountEvent {}
+
+class EmailChanged extends NewAccountEvent {}
+
+class PasswordChanged extends NewAccountEvent {}
+
+class PasswordActivated extends NewAccountEvent {}
+
+class FormSubmitted extends NewAccountEvent {}
