@@ -16,10 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(providers: [
-      BlocProvider.value(value: Injector.appInstance.get<AuthBloc>()),
-      BlocProvider.value(value: Injector.appInstance.get<LoginBloc>()),
-    ], child: const AppView());
+    return BlocProvider.value(
+        value: Injector.appInstance.get<AuthBloc>(), child: const AppView());
   }
 }
 
@@ -37,10 +35,13 @@ class AppView extends StatelessWidget {
         "/": (context) {
           return BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
-              if (state is AuthAuthenticated) {
+              if (state.user.name != "") {
                 return const HomePage();
               } else {
-                return const EmailPage();
+                return BlocProvider.value(
+                  value: Injector.appInstance.get<LoginBloc>(),
+                  child: const EmailPage(),
+                );
               }
             },
           );
@@ -51,7 +52,12 @@ class AppView extends StatelessWidget {
             child: const NewAccountPage(),
           );
         },
-        "/password": (context) => const PasswordPage(),
+        "/password": (context) {
+          return BlocProvider.value(
+            value: Injector.appInstance.get<LoginBloc>(),
+            child: const PasswordPage(),
+          );
+        },
       },
     );
   }
