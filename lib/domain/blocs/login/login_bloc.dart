@@ -17,7 +17,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc({required ReactiveAuthRepository authRepository})
       : _authRepository = authRepository,
         super(LoginState.initialState()) {
-    on<CloseDialog>(_onCloseDialogToState);
     on<EmailChanged>(_onEmailChangedToState);
     on<EmailSubmitted>(_onEmailSubmittedToState);
     on<PasswordChanged>(_onPasswordChangedToState);
@@ -81,9 +80,5 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     } catch (e) {
       emit(LoginState.failureConecction());
     }
-  }
-
-  void _onCloseDialogToState(CloseDialog event, Emitter<LoginState> emit) {
-    emit(LoginState.initialState());
   }
 }

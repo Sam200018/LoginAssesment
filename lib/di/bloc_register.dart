@@ -14,8 +14,7 @@ class BlocRegister {
     injector.registerSingleton<LoginBloc>(() =>
         LoginBloc(authRepository: injector.get<ReactiveAuthRepository>()));
     injector.registerSingleton<NewAccountBloc>(() => NewAccountBloc(
-          authBloc: injector.get<AuthBloc>(),
-          authRepository: injector.get<AuthRepository>(),
+          authRepository: injector.get<ReactiveAuthRepository>(),
         ));
   }
 }

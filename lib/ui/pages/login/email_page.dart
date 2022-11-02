@@ -21,7 +21,6 @@ class EmailPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                context.read<LoginBloc>().add(CloseDialog());
                 Navigator.of(context).pop();
               },
               child: const Text("Volver a intentar"),

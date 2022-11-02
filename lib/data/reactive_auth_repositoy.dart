@@ -24,6 +24,11 @@ class ReactiveAuthRepository {
     return await _authRepository.userExists(email);
   }
 
+  Future<void> createUser({required User newUser}) async {
+    final user = await _authRepository.createUser(newUser);
+    _controller.add(user);
+  }
+
   void logOut() {
     _controller.add(user);
   }

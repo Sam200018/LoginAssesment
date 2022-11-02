@@ -66,7 +66,6 @@ class NewAccountForm extends StatelessWidget {
     return BlocBuilder<NewAccountBloc, NewAccountState>(
       builder: (context, state) {
         return Form(
-          key: context.read<NewAccountBloc>().formKey,
           child: Column(
             children: const [
               NameInput(),
