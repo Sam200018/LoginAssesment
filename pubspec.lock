@@ -144,6 +144,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.0.4"
+  realauth:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: master
+      resolved-ref: "43c44dd5d23a34dbc41afc551fba553d36c6207c"
+      url: "https://github.com/orourkedd/realauth"
+    source: git
+    version: "1.0.0+1"
   sky_engine:
     dependency: transitive
     description: flutter
