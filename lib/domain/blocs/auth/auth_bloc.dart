@@ -1,15 +1,27 @@
+import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:login_test/domain/entities/user.dart';
+import 'package:login_test/data/reactive_auth_repositoy.dart';
+import 'package:realauth/auth.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  late User user = const User(email: "", name: "", password: "");
+  final ReactiveAuthRepository reactiveAuthRepository;
+  late StreamSubscription<User> _userSubscription;
 
-  AuthBloc() : super(AuthInitial()) {
-    // on<AppStarted>(_onAppStartedToState);
+  AuthBloc({required this.reactiveAuthRepository})
+      : super(AuthState.unknown()) {
+    _userSubscription = reactiveAuthRepository.userStatus.listen(
+      (user) {
+        if (user.name != "") {
+          add(LoggedIn(user: user));
+        } else {
+          add(LoggedOut());
+        }
+      },
+    );
     on<LoggedIn>(_onLoggedInToState);
     on<LoggedOut>(_onLoggedOutToState);
   }
@@ -18,16 +30,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LoggedIn event,
     Emitter<AuthState> emit,
   ) {
-    emit(AuthLoading());
-    user = event.user;
-    emit(AuthAuthenticated());
+    emit(AuthState.authenticated(event.user));
   }
 
   void _onLoggedOutToState(
     LoggedOut event,
     Emitter<AuthState> emit,
   ) {
-    emit(AuthLoading());
-    emit(AuthUnatheticated());
+    reactiveAuthRepository.logOut;
+    emit(AuthState.unknown());
+  }
+
+  @override
+  Future<void> close() {
+    _userSubscription.cancel();
+    return super.close();
   }
 }

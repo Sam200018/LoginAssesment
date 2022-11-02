@@ -3,41 +3,42 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_test/domain/blocs/login/login_bloc.dart';
 import 'package:login_test/ui/widgets/custom_text_widget.dart';
 import 'package:login_test/ui/widgets/principal_image_widget.dart';
-import 'package:login_test/ui/widgets/spacer_widget.dart';
 
 class PasswordPage extends StatelessWidget {
   const PasswordPage({Key? key}) : super(key: key);
 
+  void stateListener(context, state) {
+    if (state.isFailure) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: CustomText(
+                textC: "Las credenciales son incorrectas", size: 15.0),
+          ),
+        );
+    }
+    if (state.isFailureConnection) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content:
+                CustomText(textC: "Se termino el tiempo de espera", size: 15.0),
+          ),
+        );
+    }
+    if (state.isSuccess) {
+      Navigator.pushReplacementNamed(context, "/");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<LoginBloc, LoginState>(
-      listener: (context, state) {
-        if (state.isFailure) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                backgroundColor: Colors.red,
-                content: CustomText(
-                    textC: "Las credenciales son incorrectas", size: 15.0),
-              ),
-            );
-        }
-        if (state.isFailureConnection) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                backgroundColor: Colors.red,
-                content: CustomText(
-                    textC: "Se termino el tiempo de espera", size: 15.0),
-              ),
-            );
-        }
-        if (state.isSuccess) {
-          Navigator.pushReplacementNamed(context, "/");
-        }
-      },
+      listener: stateListener,
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
@@ -45,7 +46,7 @@ class PasswordPage extends StatelessWidget {
             child: Column(
               children: const [
                 PrincipalImage(),
-                SpacerWidget(space: 16),
+                SizedBox(height: 16.0),
                 PasswordForm(),
               ],
             ),
@@ -64,7 +65,7 @@ class PasswordForm extends StatelessWidget {
     return Column(
       children: const [
         PasswordInput(),
-        SpacerWidget(space: 16),
+        SizedBox(height: 16.0),
         LoginButton(),
       ],
     );
@@ -127,7 +128,7 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
-        if (state.isPasswordSubmiting) {
+        if (state.isPasswordSubmitting) {
           return const CircularProgressIndicator();
         } else {
           return SizedBox(

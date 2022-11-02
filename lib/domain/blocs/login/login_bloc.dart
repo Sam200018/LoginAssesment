@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:login_test/data/repositories/login/exceptions.dart';
-import 'package:login_test/data/repositories/login/login_repository.dart';
-import 'package:login_test/domain/blocs/auth/auth_bloc.dart';
+import 'package:login_test/data/reactive_auth_repositoy.dart';
 import 'package:login_test/domain/validators.dart';
+import 'package:realauth/auth.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';
@@ -15,14 +12,12 @@ part 'login_state.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final AuthRepository _authRepository;
-  final AuthBloc _authBloc;
+  final ReactiveAuthRepository _authRepository;
 
-  LoginBloc(
-      {required AuthRepository authRepository, required AuthBloc authBloc})
+  LoginBloc({required ReactiveAuthRepository authRepository})
       : _authRepository = authRepository,
-        _authBloc = authBloc,
         super(LoginState.initialState()) {
+    on<CloseDialog>(_onCloseDialogToState);
     on<EmailChanged>(_onEmailChangedToState);
     on<EmailSubmitted>(_onEmailSubmittedToState);
     on<PasswordChanged>(_onPasswordChangedToState);
@@ -39,7 +34,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       EmailSubmitted event, Emitter<LoginState> emit) async {
     emit(LoginState.emailLoading());
     try {
-      final userExist = await _authRepository.userExists(emailController.text);
+      final userExist =
+          await _authRepository.userExists(email: emailController.text);
 
       if (userExist) {
         emit(LoginState.emailSuccess());
@@ -74,11 +70,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   ) async {
     emit(LoginState.passwordLoading());
     try {
-      final user = await _authRepository.login(
-          emailController.text, passwordController.text);
-      log(user.toString());
-      _authBloc.add(LoggedIn(user: user));
-      emit(LoginState.passwordSucces());
+      await _authRepository.logIn(
+          email: emailController.text, password: passwordController.text);
+      emit(LoginState.passwordSuccess());
+      // close();
       emailController.clear();
       passwordController.clear();
     } on AuthException {
@@ -86,5 +81,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     } catch (e) {
       emit(LoginState.failureConecction());
     }
+  }
+
+  void _onCloseDialogToState(CloseDialog event, Emitter<LoginState> emit) {
+    emit(LoginState.initialState());
   }
 }

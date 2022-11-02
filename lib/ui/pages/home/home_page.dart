@@ -44,7 +44,7 @@ class HomeMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        final name = context.read<AuthBloc>().user.name;
+        final name = state.user.name;
         return CustomText(textC: "Hola, $name", size: 15.0);
       },
     );
@@ -57,7 +57,10 @@ class LogOutButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => context.read<AuthBloc>().add(LoggedOut()),
+      onPressed: () {
+        context.read<AuthBloc>().add(LoggedOut());
+        Navigator.popAndPushNamed(context, "/");
+      },
       child: const Text("Cerrar Sesion"),
     );
   }

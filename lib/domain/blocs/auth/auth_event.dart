@@ -13,6 +13,9 @@ class LoggedIn extends AuthEvent {
   final User user;
 
   const LoggedIn({required this.user});
+
+  @override
+  List<Object> get props => [user];
 }
 
 class LoggedOut extends AuthEvent {}

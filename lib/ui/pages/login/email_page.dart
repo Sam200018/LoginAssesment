@@ -1,60 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:injector/injector.dart';
 import 'package:login_test/domain/blocs/login/login_bloc.dart';
 import 'package:login_test/ui/widgets/custom_text_widget.dart';
 import 'package:login_test/ui/widgets/principal_image_widget.dart';
-import 'package:login_test/ui/widgets/spacer_widget.dart';
 
 class EmailPage extends StatelessWidget {
   const EmailPage({Key? key}) : super(key: key);
 
+  void stateListener(context, state) {
+    if (state.isEmailFailure) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const CustomText(textC: "El email no existe", size: 15.0),
+          content: const Icon(
+            Icons.error,
+            size: 20.0,
+            color: Colors.red,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.read<LoginBloc>().add(CloseDialog());
+                Navigator.of(context).pop();
+              },
+              child: const Text("Volver a intentar"),
+            ),
+            TextButton(
+                onPressed: () =>
+                    Navigator.popAndPushNamed(context, "/new_account"),
+                child: const Text("Crear nueva cuenta"))
+          ],
+        ),
+      );
+    }
+    if (state.isFailureConnection) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content:
+                CustomText(textC: "Se termino el tiempo de espera", size: 15.0),
+          ),
+        );
+    }
+    if (state.isEmailSuccess) {
+      Navigator.popAndPushNamed(context, "/password");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<LoginBloc, LoginState>(
-      listener: (context, state) {
-        if (state.isEmailFailure) {
-          showDialog(
-            context: context,
-            builder: (_) => BlocProvider.value(
-              value: Injector.appInstance.get<LoginBloc>(),
-              child: AlertDialog(
-                title:
-                    const CustomText(textC: "El email no existe", size: 15.0),
-                content: const Icon(
-                  Icons.error,
-                  size: 20.0,
-                  color: Colors.red,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Volver a intentar"),
-                  ),
-                  TextButton(
-                      onPressed: () =>
-                          Navigator.pushNamed(context, "/new_account"),
-                      child: const Text("Crear nueva cuenta"))
-                ],
-              ),
-            ),
-          );
-        }
-        if (state.isFailureConnection) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                backgroundColor: Colors.red,
-                content: CustomText(
-                    textC: "Se termino el tiempo de espera", size: 15.0),
-              ),
-            );
-        }
-        if (state.isEmailSuccess) {
-          Navigator.pushNamed(context, "/password");
-        }
-      },
+      listener: stateListener,
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
@@ -62,7 +61,7 @@ class EmailPage extends StatelessWidget {
             child: Column(
               children: const [
                 PrincipalImage(),
-                SpacerWidget(space: 16),
+                SizedBox(height: 16.0),
                 EmailForm(),
               ],
             ),
@@ -83,7 +82,7 @@ class EmailForm extends StatelessWidget {
     return Column(
       children: const [
         EmailInput(),
-        SpacerWidget(space: 16),
+        SizedBox(height: 16.0),
         EmailCheckButton(),
       ],
     );
@@ -123,7 +122,7 @@ class EmailCheckButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
-        if (state.isEmailSubmiting) {
+        if (state.isEmailSubmitting) {
           return const CircularProgressIndicator();
         } else {
           return SizedBox(
@@ -148,7 +147,7 @@ class NewAccountButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-        onPressed: () => Navigator.pushNamed(context, "/new_account"),
+        onPressed: () => Navigator.popAndPushNamed(context, "/new_account"),
         child: const Text("Crear Sesion"));
   }
 }

@@ -16,3 +16,5 @@ class PasswordActivated extends LoginEvent {}
 class EmailSubmitted extends LoginEvent {}
 
 class PasswordSubmitted extends LoginEvent {}
+
+class CloseDialog extends LoginEvent {}

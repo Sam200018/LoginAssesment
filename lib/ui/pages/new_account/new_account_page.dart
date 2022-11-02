@@ -3,40 +3,41 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:login_test/domain/blocs/new_account/new_account_bloc.dart';
 import 'package:login_test/ui/widgets/custom_text_widget.dart';
 import 'package:login_test/ui/widgets/principal_image_widget.dart';
-import 'package:login_test/ui/widgets/spacer_widget.dart';
 
 class NewAccountPage extends StatelessWidget {
   const NewAccountPage({Key? key}) : super(key: key);
 
+  void stateListener(context, state) {
+    if (state.isFailure) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: CustomText(textC: "El usuario ya existe", size: 15.0),
+          ),
+        );
+    }
+    if (state.isFailureConnection) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content:
+                CustomText(textC: "Se termino el tiempo de espera", size: 15.0),
+          ),
+        );
+    }
+    if (state.isSuccess) {
+      Navigator.popAndPushNamed(context, '/');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<NewAccountBloc, NewAccountState>(
-      listener: (context, state) {
-        if (state.isFailure) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                backgroundColor: Colors.red,
-                content: CustomText(textC: "El usuario ya existe", size: 15.0),
-              ),
-            );
-        }
-        if (state.isFailureConnection) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                backgroundColor: Colors.red,
-                content: CustomText(
-                    textC: "Se termino el tiempo de espera", size: 15.0),
-              ),
-            );
-        }
-        if (state.isSuccess) {
-          Navigator.pushReplacementNamed(context, '/');
-        }
-      },
+      listener: stateListener,
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
@@ -44,7 +45,7 @@ class NewAccountPage extends StatelessWidget {
             child: Column(
               children: const [
                 PrincipalImage(),
-                SpacerWidget(space: 16),
+                SizedBox(height: 16.0),
                 NewAccountForm(),
               ],
             ),
@@ -69,11 +70,11 @@ class NewAccountForm extends StatelessWidget {
           child: Column(
             children: const [
               NameInput(),
-              SpacerWidget(space: 16),
+              SizedBox(height: 16.0),
               EmailInput(),
-              SpacerWidget(space: 16),
+              SizedBox(height: 16.0),
               PasswordInput(),
-              SpacerWidget(space: 16),
+              SizedBox(height: 16.0),
               CreatAccountButton(),
             ],
           ),
