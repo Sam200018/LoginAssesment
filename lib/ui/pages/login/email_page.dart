@@ -39,8 +39,7 @@ class EmailPage extends StatelessWidget {
         ..showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
-            content:
-                CustomText(textC: "Se termino el tiempo de espera", size: 15.0),
+            content: CustomText(textC: "Falló la conexión", size: 15.0),
           ),
         );
     }
@@ -116,7 +115,9 @@ class EmailInput extends StatelessWidget {
 class EmailCheckButton extends StatelessWidget {
   const EmailCheckButton({super.key});
 
-  bool isEmailInputValid(LoginState state) => state.emailInputValid;
+  bool isEmailInputValid(LoginState state) =>
+      state.emailInputValid && !state.isEmailFailure;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
@@ -129,7 +130,13 @@ class EmailCheckButton extends StatelessWidget {
             height: 50.0,
             child: ElevatedButton(
               onPressed: isEmailInputValid(state)
-                  ? () => context.read<LoginBloc>().add(EmailSubmitted())
+                  ? () {
+                      final inputValue =
+                          context.read<LoginBloc>().emailController.text;
+                      if (inputValue != "") {
+                        context.read<LoginBloc>().add(EmailSubmitted());
+                      }
+                    }
                   : null,
               child: const CustomText(textC: "Siguiente", size: 20.0),
             ),

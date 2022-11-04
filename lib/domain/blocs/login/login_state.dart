@@ -140,7 +140,7 @@ class LoginState extends Equatable {
         isFailure: false);
   }
 
-  factory LoginState.failureConecction() {
+  factory LoginState.failureConnection() {
     return const LoginState(
         isEmailValid: true,
         isPasswordValid: true,

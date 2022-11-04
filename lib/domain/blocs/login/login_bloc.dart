@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:login_test/data/reactive_auth_repositoy.dart';
+import 'package:login_test/data/reactive_auth_repository.dart';
 import 'package:login_test/domain/validators.dart';
 import 'package:realauth/auth.dart';
+import 'package:retry/retry.dart';
 
 part 'login_event.dart';
+
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
@@ -24,7 +26,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<PasswordSubmitted>(_onPasswordSubmittedToState);
   }
 
-  void _onEmailChangedToState(EmailChanged evet, Emitter<LoginState> emit) {
+  void _onEmailChangedToState(EmailChanged event, Emitter<LoginState> emit) {
     emit(state.update(
         isEmailValid: Validators.isValidadEmail(emailController.text)));
   }
@@ -32,17 +34,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _onEmailSubmittedToState(
       EmailSubmitted event, Emitter<LoginState> emit) async {
     emit(LoginState.emailLoading());
-    try {
-      final userExist =
-          await _authRepository.userExists(email: emailController.text);
 
+    try {
+      const r = RetryOptions(maxDelay: Duration(minutes: 1), maxAttempts: 4);
+      final userExist = await r.retry(() async {
+        return await _authRepository.userExists(email: emailController.text);
+      },
+          // retryIf: (e) => e is Exception,
+          onRetry: (e) => emit(LoginState.emailLoading()));
       if (userExist) {
         emit(LoginState.emailSuccess());
       } else {
         emit(LoginState.emailFailure());
       }
     } catch (e) {
-      emit(LoginState.failureConecction());
+      emit(LoginState.failureConnection());
     }
   }
 
@@ -69,16 +75,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   ) async {
     emit(LoginState.passwordLoading());
     try {
-      await _authRepository.logIn(
-          email: emailController.text, password: passwordController.text);
-      emit(LoginState.passwordSuccess());
-      // close();
-      emailController.clear();
-      passwordController.clear();
+      const r = RetryOptions(maxDelay: Duration(minutes: 1), maxAttempts: 4);
+      await r.retry(
+        () async {
+          await _authRepository.logIn(
+              email: emailController.text, password: passwordController.text);
+          emit(LoginState.passwordSuccess());
+          emailController.clear();
+          passwordController.clear();
+        },
+        retryIf: (e) => e is! AuthException,
+        onRetry: (e) => emit(LoginState.passwordLoading()),
+      );
     } on AuthException {
       emit(LoginState.passwordFailure());
     } catch (e) {
-      emit(LoginState.failureConecction());
+      emit(LoginState.failureConnection());
     }
   }
 }

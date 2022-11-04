@@ -25,8 +25,7 @@ class PasswordPage extends StatelessWidget {
         ..showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
-            content:
-                CustomText(textC: "Se termino el tiempo de espera", size: 15.0),
+            content: CustomText(textC: "Falló la conexión", size: 15.0),
           ),
         );
     }
@@ -74,7 +73,9 @@ class PasswordForm extends StatelessWidget {
 
 class PasswordInput extends StatelessWidget {
   const PasswordInput({super.key});
+
   bool isEnablePassword(LoginState state) => state.isEnablePassword;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoginBloc, LoginState>(
@@ -122,7 +123,8 @@ class SuffixIconWidget extends StatelessWidget {
 class LoginButton extends StatelessWidget {
   const LoginButton({super.key});
 
-  bool isPasswordInputValid(LoginState state) => state.isPasswordValid;
+  bool isPasswordInputValid(LoginState state) =>
+      state.isPasswordValid && !state.isFailure;
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +138,13 @@ class LoginButton extends StatelessWidget {
             height: 50.0,
             child: ElevatedButton(
               onPressed: isPasswordInputValid(state)
-                  ? () => context.read<LoginBloc>().add(PasswordSubmitted())
+                  ? () {
+                      final inputValue =
+                          context.read<LoginBloc>().passwordController.text;
+                      if (inputValue != "") {
+                        context.read<LoginBloc>().add(PasswordSubmitted());
+                      }
+                    }
                   : null,
               child: const CustomText(textC: "Iniciar sesion", size: 20.0),
             ),

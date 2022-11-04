@@ -25,7 +25,7 @@ class NewAccountPage extends StatelessWidget {
           const SnackBar(
             backgroundColor: Colors.red,
             content:
-                CustomText(textC: "Se termino el tiempo de espera", size: 15.0),
+                CustomText(textC: "Falló la conexión", size: 15.0),
           ),
         );
     }
@@ -134,6 +134,7 @@ class PasswordInput extends StatelessWidget {
   const PasswordInput({Key? key}) : super(key: key);
 
   bool isEnablePassword(NewAccountState state) => state.isEnablePassword;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NewAccountBloc, NewAccountState>(
@@ -169,7 +170,8 @@ class CreatAccountButton extends StatelessWidget {
       read.emailController.text.isNotEmpty &&
       read.nameController.text.isNotEmpty &&
       read.passwordController.text.isNotEmpty &&
-      state.formValid;
+      state.formValid &&
+      !state.isFailure;
 
   @override
   Widget build(BuildContext context) {

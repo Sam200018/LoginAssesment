@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:login_test/data/reactive_auth_repositoy.dart';
+import 'package:login_test/data/reactive_auth_repository.dart';
 import 'package:login_test/domain/validators.dart';
 import 'package:realauth/auth.dart';
+import 'package:retry/retry.dart';
 
 part 'new_account_event.dart';
+
 part 'new_account_state.dart';
 
 class NewAccountBloc extends Bloc<NewAccountEvent, NewAccountState> {
@@ -21,7 +24,7 @@ class NewAccountBloc extends Bloc<NewAccountEvent, NewAccountState> {
         super(NewAccountState.initialState()) {
     on<NameChanged>(_onNameChangedToState);
     on<EmailChanged>(_onEmailChangedToState);
-    on<PasswordChanged>(_onPasswodChangedToState);
+    on<PasswordChanged>(_onPasswordChangedToState);
     on<PasswordActivated>(_onPasswordActivatedToState);
     on<FormSubmitted>(_onFormSubmittedToState);
   }
@@ -37,7 +40,7 @@ class NewAccountBloc extends Bloc<NewAccountEvent, NewAccountState> {
         isEmailValid: Validators.isValidadEmail(emailController.text)));
   }
 
-  void _onPasswodChangedToState(
+  void _onPasswordChangedToState(
     PasswordChanged event,
     Emitter<NewAccountState> emit,
   ) {
@@ -56,12 +59,22 @@ class NewAccountBloc extends Bloc<NewAccountEvent, NewAccountState> {
   ) async {
     emit(NewAccountState.isLoading());
     try {
+      const r = RetryOptions(maxDelay: Duration(minutes: 1), maxAttempts: 4);
       final userAux = User(
           email: emailController.text,
           name: nameController.text,
           password: passwordController.text);
 
-      await _authRepository.createUser(newUser: userAux);
+      await r.retry(
+        () async {
+          await _authRepository.createUser(newUser: userAux);
+        },
+        onRetry: (e) {
+          log(e.toString());
+          emit(NewAccountState.isLoading());
+        },
+        retryIf: (e) => e is! UserAlreadyExistsException,
+      );
 
       emit(NewAccountState.isSuccess());
       nameController.clear();

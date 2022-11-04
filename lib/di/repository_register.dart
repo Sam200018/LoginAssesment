@@ -1,5 +1,5 @@
 import 'package:injector/injector.dart';
-import 'package:login_test/data/reactive_auth_repositoy.dart';
+import 'package:login_test/data/reactive_auth_repository.dart';
 import 'package:realauth/auth.dart';
 
 class RepositoryRegister {

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:login_test/data/reactive_auth_repositoy.dart';
+import 'package:login_test/data/reactive_auth_repository.dart';
 import 'package:realauth/auth.dart';
 
 part 'auth_event.dart';
